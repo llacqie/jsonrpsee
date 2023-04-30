@@ -70,7 +70,7 @@ pub struct InvalidRequest<'a> {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Notification<'a, T> {
 	/// JSON-RPC version.
-	pub jsonrpc: TwoPointZero,
+	pub jsonrpc: Option<TwoPointZero>,
 	/// Name of the method to be invoked.
 	#[serde(borrow)]
 	pub method: Cow<'a, str>,
@@ -81,7 +81,7 @@ pub struct Notification<'a, T> {
 impl<'a, T> Notification<'a, T> {
 	/// Create a new [`Notification`].
 	pub fn new(method: Cow<'a, str>, params: T) -> Self {
-		Self { jsonrpc: TwoPointZero, method, params }
+		Self { jsonrpc: Some(TwoPointZero), method, params }
 	}
 }
 
@@ -192,7 +192,7 @@ mod test {
 		let ser = r#"{"jsonrpc":"2.0","method":"say_hello","params":[]}"#;
 		let dsr: Notification<&RawValue> = serde_json::from_str(ser).unwrap();
 		assert_eq!(dsr.method, "say_hello");
-		assert_eq!(dsr.jsonrpc, TwoPointZero);
+		assert_eq!(dsr.jsonrpc, Some(TwoPointZero));
 	}
 
 	#[test]
@@ -200,7 +200,7 @@ mod test {
 		let ser = r#"{"jsonrpc":"2.0","method":"\"m\"","params":[]}"#;
 		let dsr: Notification<&RawValue> = serde_json::from_str(ser).unwrap();
 		assert_eq!(dsr.method, "\"m\"");
-		assert_eq!(dsr.jsonrpc, TwoPointZero);
+		assert_eq!(dsr.jsonrpc, Some(TwoPointZero));
 	}
 
 	#[test]
